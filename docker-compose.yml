@@ -1,0 +1,46 @@
+version: '3'
+services:
+  activity:
+    build: .
+    container_name: landing
+    environment:
+      - APACHE_RUN_USER=#1000
+    volumes:
+      - ${APP_LANDING_PATH}:${APP_PATH_CONTAINER}
+    ports:
+      - "8080:80"
+    links:
+      - database
+    working_dir: ${APP_PATH_CONTAINER}
+    networks:
+      - net
+  client:
+    build: .
+    container_name: activity
+    environment:
+      - APACHE_RUN_USER=#1000
+    volumes:
+      - ${APP_ACTIVITY_PATH}:${APP_PATH_CONTAINER}
+    ports:
+      - "8888:80"
+    working_dir: ${APP_PATH_CONTAINER}
+    networks:
+      - net
+  database:
+    image: mariadb
+    container_name: database
+    volumes:
+      - ${DB_PATH}:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    networks:
+      - net
+networks:
+  net:
+    driver: bridge
